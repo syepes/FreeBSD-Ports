@@ -25,22 +25,24 @@ name="influxd"
 rcvar=influxd_enable
 
 : ${influxd_enable:="NO"}
-: ${influxd_user:="%%INFLUXD_USER%%"}
-: ${influxd_group:="%%INFLUXD_GROUP%%"}
+: ${influxd_user:=%%INFLUXD_USER%%}
+: ${influxd_group:=%%INFLUXD_GROUP%%}
 : ${influxd_flags:=""}
 : ${influxd_conf:="%%PREFIX%%/etc/${name}.conf"}
 : ${influxd_options:="${influxdb_flags} -config=${influxd_conf}"}
+: ${influxd_logfile:="/var/log/influxdb/${name}.log"}
 
 # daemon
+log_args=">> ${influxd_logfile} 2>&1"
 influxd_pidfile="%%INFLUXD_PIDDIR%%${name}.pid"
 procname="%%PREFIX%%/bin/${name}"
 command=/usr/sbin/daemon
-command_args=" -f -c -p ${influxd_pidfile} ${procname} ${influxd_options}"
+command_args=" -c -p ${influxd_pidfile} ${procname} ${influxd_options} ${log_args}"
 start_precmd="influxd_precmd"
 
 influxd_precmd()
 {
-    install -o ${influxd_user} /dev/null ${influxd_pidfile}
+    install -o ${influxd_user} -g ${influxd_group} /dev/null ${influxd_pidfile}
 }
 
 load_rc_config $name

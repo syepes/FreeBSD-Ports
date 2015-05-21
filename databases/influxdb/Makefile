@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME=	influxdb
-PORTVERSION=	0.9.0.r7
+PORTVERSION=	0.9.0.r30
 CATEGORIES=	databases net-mgmt
 MASTER_SITES=	GITHUB:github	\
 		https://codeload.github.com/BurntSushi/toml/legacy.tar.gz/${TOML_GH_COMMIT}?dummy=/:toml \
@@ -11,7 +11,6 @@ MASTER_SITES=	GITHUB:github	\
 		https://codeload.github.com/peterh/liner/legacy.tar.gz/${LINER_GH_COMMIT}?dummy=/:liner \
 		https://codeload.github.com/rakyll/statik/legacy.tar.gz/${STATIK_GH_COMMIT}?dummy=/:statik \
 		https://codeload.github.com/alecthomas/log4go/legacy.tar.gz/${LOG4GO_GH_COMMIT}?dummy=/:log4go \
-		https://codeload.github.com/cheffo/crypto/legacy.tar.gz/${GOCRYPTO_GH_COMMIT}?dummy=/:crypto \
 		https://codeload.github.com/cheffo/go-uuid/legacy.tar.gz/${GO_UUID_GH_COMMIT}?dummy=/:uuid
 DISTFILES=	${PORTNAME}-${DISTVERSION}${EXTRACT_SUFX}:github \
 		BurntSushi-toml-${TOML_GH_COMMIT}.tar.gz:toml \
@@ -21,7 +20,6 @@ DISTFILES=	${PORTNAME}-${DISTVERSION}${EXTRACT_SUFX}:github \
 		peterh-liner-${LINER_GH_COMMIT}.tar.gz:liner \
 		rakyll-statik-${STATIK_GH_COMMIT}.tar.gz:statik \
 		alecthomas-log4go-${LOG4GO_GH_COMMIT}.tar.gz:log4go \
-		cheffo-crypto-${GOCRYPTO_GH_COMMIT}.tar.gz:crypto \
 		cheffo-go-uuid-${GO_UUID_GH_COMMIT}.tar.gz:uuid
 
 MAINTAINER=	cheffo@freebsd-bg.org
@@ -40,17 +38,17 @@ USE_RC_SUBR=	influxd
 USE_GITHUB=	yes
 GH_ACCOUNT=	influxdb
 GH_PROJECT=	influxdb
-GH_COMMIT=	4c5beb9
+GH_COMMIT=	acf2dd6
 GH_TAGNAME=	${GH_COMMIT}
 
 TOML_GH_COMMIT=		443a628
 PAT_GH_COMMIT=		b8a3500
-BOLT_GH_COMMIT=		cf33c9e
+BOLT_GH_COMMIT=		55af28c
 GOLLECTD_GH_COMMIT=	1d0fc88
 LINER_GH_COMMIT=	29f6a64
 STATIK_GH_COMMIT=	4a16c83
 LOG4GO_GH_COMMIT=	1bcc57d
-GOCRYPTO_GH_COMMIT=	1351f93
+GOCRYPTO_GH_COMMIT=	4d48e5f
 GO_UUID_GH_COMMIT=	ed3ca8a
 
 SUB_FILES=	influxd
@@ -88,7 +86,7 @@ post-patch:
 	@${MKDIR} ${WRKDIR}/src/github.com/peterh
 	@${MKDIR} ${WRKDIR}/src/github.com/rakyll
 	@${MKDIR} ${WRKDIR}/src/golang.org/x
-	@${MV} ${WRKDIR}/${GH_ACCOUNT}-${GH_PROJECT}-${GH_COMMIT} ${WRKDIR}/src/github.com/${GH_ACCOUNT}/${GH_PROJECT}
+	@${MV} ${WRKDIR}/${GH_PROJECT}-${GH_COMMIT} ${WRKDIR}/src/github.com/${GH_PROJECT}/${GH_PROJECT}
 	@${MV} ${WRKDIR}/cheffo-go-uuid-${GO_UUID_GH_COMMIT} ${WRKDIR}/src/code.google.com/p/go-uuid
 	@${MV} ${WRKDIR}/alecthomas-log4go-${LOG4GO_GH_COMMIT} ${WRKDIR}/src/code.google.com/p/log4go
 	@${MV} ${WRKDIR}/BurntSushi-toml-${TOML_GH_COMMIT} ${WRKDIR}/src/github.com/BurntSushi/toml
@@ -97,11 +95,10 @@ post-patch:
 	@${MV} ${WRKDIR}/kimor79-gollectd-${GOLLECTD_GH_COMMIT} ${WRKDIR}/src/github.com/kimor79/gollectd
 	@${MV} ${WRKDIR}/peterh-liner-${LINER_GH_COMMIT} ${WRKDIR}/src/github.com/peterh/liner
 	@${MV} ${WRKDIR}/rakyll-statik-${STATIK_GH_COMMIT} ${WRKDIR}/src/github.com/rakyll/statik
-	@${MV} ${WRKDIR}/cheffo-crypto-${GOCRYPTO_GH_COMMIT} ${WRKDIR}/src/golang.org/x/crypto
 
 do-build:
 		@cd ${WRKDIR}/src/github.com/influxdb/ &&  ${SETENV} ${GO_ENV} go get ./...
-		@cd ${WRKDIR}/src/github.com/influxdb/ &&  ${SETENV} ${GO_ENV} go build ./...
+		@cd ${WRKDIR}/src/github.com/influxdb/ &&  ${SETENV} ${GO_ENV} go install -a -ldflags "-X main.version ${PORTVERSION} -X main.commit ${GH_COMMIT}" ./...
 
 do-install:
 		${MKDIR} ${STAGEDIR}${INFLUXD_DBDIR} \
@@ -112,7 +109,7 @@ post-install:
 		${INSTALL_PROGRAM} ${WRKDIR}/bin/influxd ${STAGEDIR}${PREFIX}/bin/influxd
 		${INSTALL_PROGRAM} ${WRKDIR}/bin/influx ${STAGEDIR}${PREFIX}/bin/influx
 		@${SED} -i .bak -e \
-			"s|/tmp/influxdb/development|/var/db/influxdb|g" \
+			"s|/var/opt/influxdb|/var/db/influxdb|g" \
 			${WRKDIR}/src/github.com/${GH_ACCOUNT}/${GH_PROJECT}/etc/config.sample.toml
 		${INSTALL_DATA} \
 			${WRKDIR}/src/github.com/${GH_ACCOUNT}/${GH_PROJECT}/etc/config.sample.toml  \
@@ -123,3 +120,4 @@ post-install:
 .include <bsd.port.pre.mk>
 .include "${.CURDIR}/../../lang/go/files/bsd.go.mk"
 .include <bsd.port.post.mk>
+
