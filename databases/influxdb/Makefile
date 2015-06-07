@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME=	influxdb
-PORTVERSION=	0.9.0.r31
+PORTVERSION=	0.9.0.r32
 CATEGORIES=	databases net-mgmt
 MASTER_SITES=	GITHUB:github	\
 		https://codeload.github.com/BurntSushi/toml/legacy.tar.gz/${TOML_GH_COMMIT}?dummy=/:toml \
@@ -38,12 +38,12 @@ USE_RC_SUBR=	influxd
 USE_GITHUB=	yes
 GH_ACCOUNT=	influxdb
 GH_PROJECT=	influxdb
-GH_COMMIT=	8ade485
+GH_COMMIT=	50a2b9b
 GH_TAGNAME=	${GH_COMMIT}
 
 TOML_GH_COMMIT=		443a628
 PAT_GH_COMMIT=		b8a3500
-BOLT_GH_COMMIT=		55af28c
+BOLT_GH_COMMIT=		5eb31d5
 GOLLECTD_GH_COMMIT=	1d0fc88
 LINER_GH_COMMIT=	29f6a64
 STATIK_GH_COMMIT=	4a16c83
